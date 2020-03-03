@@ -11,10 +11,10 @@ bool palindrome(const char* const chaine)
     size_t debut = 0;
     size_t fin = strlen(chaine);
 
-    while(debut != fin)
+    while(debut<fin)
     {
         char const gauche = chaine[debut];
-        char const droite = chaine[fin];
+        char const droite = chaine[fin-1];
         if(gauche != droite)
         {
             return false;
@@ -31,15 +31,18 @@ bool palindrome(const char* const chaine)
 // Modifie la chaîne donnée et retourne un pointeur au début de cette chaîne.
 char* inverse(char* chaine)
 {
-    size_t const longueur = strlen(chaine);
+    char tmp[1];
+    size_t longueur = strlen(chaine);
+    if(longueur > 0) --longueur;
     size_t const mi_longueur = longueur / 2;
 
-    // On échange la première lettre avec la dernière, puis la deuxième avec 
+    // On échange la première lettre avec la dernière, puis la deuxième avec
     // l'avant-dernière et ainsi de suite jusqu'au milieu de la chaine.
-    for(size_t i = 0; i != mi_longueur; ++i)
+    for(size_t i = 0; i <= mi_longueur; i++)
     {
+        tmp[0]=chaine[i];
         chaine[i] = chaine[longueur - i];
-        chaine[longueur - i] = chaine[i];
+        chaine[longueur - i] = tmp[0];
     }
 
     return chaine;
@@ -53,11 +56,11 @@ char* en_chaine(int32_t const nombre, char* chaine)
 {
     memset(chaine, '\0', (size_t)ceil(log10(INT32_MAX)) + 2);
 
-    if(nombre < 0)
+    /*if(nombre < 0)
     {
         chaine[0] = '-';
-    }
-
+    }*/
+    size_t i = 0;
     // De combien de chiffres le nombre est-il composé ?
     size_t n_chiffres;
     if(nombre == 0)
@@ -72,13 +75,21 @@ char* en_chaine(int32_t const nombre, char* chaine)
     {
         n_chiffres = log10(abs(nombre)) + 1;
     }
+    if(nombre < 0)
+    {
+        chaine[0] = '-';
+        ++i;
+        ++n_chiffres;
+    }
 
-    for(size_t i = 0; i != n_chiffres; ++i)
+    for(i = 0; i < n_chiffres; ++i)
     {
         // On isole chaque chiffre du nombre, partant du plus significatif.
-        int32_t const a = nombre / (int32_t)pow(10, n_chiffres - i);    // p. ex. nombre = 1234, i = 1 => a = 12
-        int32_t const b = abs(a) % 10;                                  // p. ex. a = 12 => b = 2
-
+        int32_t const a = nombre / (int32_t)pow(10, n_chiffres - i-1);    // p. ex. nombre = 1234, i = 1 => a = 12
+        //int32_t const b = abs(a) % 10;                                  // p. ex. a = 12 => b = 2
+        int32_t b;
+        if(a != INT32_MIN) b = abs(a) % 10;
+        else b = 8;
         // Le chiffre trouvé est converti en son caractère équivalent.
         chaine[i] = '0' + b;
     }
@@ -89,7 +100,7 @@ char* en_chaine(int32_t const nombre, char* chaine)
 // Retourne vrai si toute les lettres de gauche se retrouvent dans droite et vice versa.
 bool anagramme(char const* const gauche, char const* const droite)
 {
-#define L_ALPHABET ('z' - 'a')
+#define L_ALPHABET (127)
 
     int lettres[L_ALPHABET] = {0};
 
@@ -110,7 +121,7 @@ bool anagramme(char const* const gauche, char const* const droite)
     {
         if(lettres[i] != 0)
         {
-            return true;
+            return false;
         }
     }
 
